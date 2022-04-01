@@ -24,7 +24,7 @@
 
 - name: Create kuttl-test.yaml
   template:
-      src: "{{ test_dir}}/kuttl-test.yaml.j2"
+      src: "{{ test_dir}}/kuttl-test.yaml.jinja2"
       mode: "preserve"
       dest: "{{ work_dir }}/kuttl-test.yaml"
 
