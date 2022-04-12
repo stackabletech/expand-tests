@@ -7,6 +7,7 @@ import itertools
 import logging
 import sys
 import yaml
+from itertools import chain
 
 
 @dataclass
@@ -17,7 +18,10 @@ class TestCase:
 
     def __post_init__(self):
         self.name = "_".join(
-            "-".join([x, self.values.get(x)]) for x in self.values.keys()
+            chain(
+                [self.testcase],
+                ["-".join([x, self.values.get(x)]) for x in self.values.keys()],
+            )
         )
 
 
