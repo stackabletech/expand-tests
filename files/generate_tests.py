@@ -6,6 +6,7 @@ from dataclasses import dataclass, field, asdict
 import itertools
 import logging
 import sys
+from typing import Dict
 import yaml
 from itertools import chain
 
@@ -13,7 +14,7 @@ from itertools import chain
 @dataclass
 class TestCase:
     testcase: str
-    values: dict[str, str]
+    values: Dict[str, str]
     name: str = field(init=False)
 
     def __post_init__(self):
