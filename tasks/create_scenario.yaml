@@ -1,50 +1,37 @@
-- name: Create test scenario folders
+---
+- name: "Create directory for {{ test_scenario.name }}"
   file:
-    path: "{{ work_dir }}/tests/{{ test_scenario.testcase }}/{{ test_scenario.name }}"
+    path: "{{ work_dir + '/tests/' + test_scenario.testcase + '/' + test_scenario.name }}"
     state: directory
-  with_items: "{{ testdefinition.tests }}"
 
-- name: Find template files
+- name: "Synchronize files for {{ test_scenario.name }}"
+  ansible.builtin.synchronize:
+    src: "{{ template_dir +'/kuttl/' + test_scenario.testcase + '/' }}"
+    dest: "{{ work_dir + '/tests/' + test_scenario.testcase + '/' + test_scenario.name }}"
+
+- name: "Find test templates for {{ test_scenario.name }}"
   find:
-    paths: "{{ template_dir }}/kuttl/{{ test_scenario.testcase }}"
+    paths: "{{ work_dir + '/tests/' + test_scenario.testcase + '/' + test_scenario.name }}"
     patterns: "*.j2"
     file_type: file
     hidden: true
     use_regex: false
     recurse: true
-  register: files_j2
+  register: test_templates
 
-- name: Find regular files that need no templating
-  find:
-    paths: "{{ template_dir }}/kuttl/{{ test_scenario.testcase }}"
-    excludes: "*.j2"
-    file_type: file
-    hidden: true
-    use_regex: false
-    recurse: true
-  register: files_normal
-
-- name: Ensure directories exist
-  file:
-    path: "{{ item.path | replace(template_dir +'/kuttl/' + test_scenario.testcase, work_dir + '/tests/' + test_scenario.testcase + '/' + test_scenario.name) | dirname }}"
-    state: directory
-  with_items:
-    - "{{ files_j2.files }}"
-    - "{{ files_normal.files }}"
-  register: directory_result
-
-- name: Copy templates files
+- name: "Process templates for {{ test_scenario.name }}"
   template:
     src: "{{ item.path }}"
+    dest: "{{ item.path | regex_replace('.j2$', '') }}"
     mode: "preserve"
-    dest: "{{ item.path | replace(template_dir +'/kuttl/' + test_scenario.testcase, work_dir + '/tests/' + test_scenario.testcase + '/' + test_scenario.name) | regex_replace('.j2$', '') }}"
-  with_items: "{{ files_j2.files }}"
-  register: template_result
+  loop: "{{ test_templates.files }}"
+  loop_control:
+    label: "{{ item.path }}"
 
-- name: Copy normal files to temp directory
-  copy:
-    src: "{{ item.path }}"
-    mode: "preserve"
-    dest: "{{ item.path | replace(template_dir +'/kuttl/' + test_scenario.testcase, work_dir + '/tests/' + test_scenario.testcase + '/' + test_scenario.name) }}"
-  with_items: "{{ files_normal.files }}"
-  register: file_result
+- name: "Delete template sources for {{ test_scenario.name }}"
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ test_templates.files }}"
+  loop_control:
+    label: "{{ item.path }}"

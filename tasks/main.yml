@@ -33,4 +33,3 @@
   loop: "{{ testdefinition.tests }}"
   loop_control:
     loop_var: test_scenario
-

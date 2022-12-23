@@ -6,7 +6,7 @@ A brief description of the role goes here.
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This role uses `ansible.builtin.synchronize` which in turn requires `rsync` to be installed.
 
 Role Variables
 --------------
@@ -21,11 +21,11 @@ A list of other roles hosted on Galaxy should go here, plus any details in regar
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+- name: Expand test templates into test scenarios by applying input dimensions
+  hosts: all
+  gather_facts: false
+  roles:
+  - expand-tests
 
 License
 -------
